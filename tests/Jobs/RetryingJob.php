@@ -23,4 +23,14 @@ final class RetryingJob extends TrackableJob implements ShouldQueue
     {
         throw new Exception('This job fails, it will be retried 3 times.');
     }
+
+    public function sender(): ?string
+    {
+        return 'TestSender-RetryingJob';
+    }
+
+    public function getQueue(): ?string
+    {
+        return 'TestReceiver-RetryingJob';
+    }
 }
