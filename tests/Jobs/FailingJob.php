@@ -38,4 +38,14 @@ class FailingJob extends TrackableJob implements ShouldQueue, TrackableContract
     {
         return $this->user->getMorphClass();
     }
+
+    public function sender(): ?string
+    {
+        return 'TestSender';
+    }
+
+    public function getQueue(): ?string
+    {
+        return 'TestReceiver';
+    }
 }
