@@ -32,4 +32,14 @@ class TestJob extends TrackableJob implements ShouldQueue, ShouldBeUnique
             'exit_code' => 1,
         ];
     }
+
+    public function sender(): ?string
+    {
+        return 'TestSender-TestJob';
+    }
+
+    public function getQueue(): ?string
+    {
+        return 'TestReceiver-TestJob';
+    }
 }

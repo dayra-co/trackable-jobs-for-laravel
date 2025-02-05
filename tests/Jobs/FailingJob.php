@@ -41,11 +41,11 @@ class FailingJob extends TrackableJob implements ShouldQueue, TrackableContract
 
     public function sender(): ?string
     {
-        return 'TestSender';
+        return 'TestSender-FailingJob';
     }
 
     public function getQueue(): ?string
     {
-        return 'TestReceiver';
+        return 'TestReceiver-FailingJob';
     }
 }
