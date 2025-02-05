@@ -13,13 +13,13 @@ interface TrackableJobContract
     public function markAsQueued(string|int|null $jobId = null): bool;
 
     /** Mark the job as started. */
-    public function markAsStarted(): bool;
+    public function markAsStarted($payload): bool;
 
     /** Mark the job as finished successfully. */
     public function markAsFinished(string $message = null): bool;
 
     /** Mark the job as retrying. */
-    public function markAsRetrying(int $attempts): bool;
+    public function markAsRetrying(int $attempts, bool $is_end): bool;
 
     /** Mark the job as finished with error. */
     public function markAsFailed(string $exception = null): bool;

@@ -20,6 +20,8 @@ abstract class TrackableJob implements TrackableContract
             'attempts' => 0,
             'trackable_type' => $this->trackableType(),
             'name' => static::class,
+            'receiver' => $this->getQueue(),
+            'sender' => $this->sender()
         ]);
     }
 

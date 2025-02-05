@@ -9,4 +9,10 @@ interface TrackableContract
 
     /** The type of the model you want the trackable job to be related to. Usually the morph class. */
     public function trackableType(): ?string;
+
+    /** The sender of the job. */
+    public function sender(): ?string;
+
+    /** The queue of the job. */
+    public function getQueue(): ?string;
 }

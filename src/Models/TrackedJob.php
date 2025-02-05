@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Junges\TrackableJobs\Concerns\HasUuid;
 use Junges\TrackableJobs\Contracts\TrackableJobContract;
 use Junges\TrackableJobs\Enums\TrackedJobStatus;
+use Junges\TrackableJobs\Models\TrackedJobAttempt;
 
 /**
  * @package Junges\TrackableJobs\Models
@@ -29,6 +30,13 @@ use Junges\TrackableJobs\Enums\TrackedJobStatus;
  */
 class TrackedJob extends Model implements TrackableJobContract
 {
+    /**
+     * The database connection that should be used by the model.
+     *
+     * @var string
+     */
+    protected $connection = 'telescope';
+
     use HasFactory;
     use HasUuid;
     use Prunable;
@@ -49,12 +57,16 @@ class TrackedJob extends Model implements TrackableJobContract
         'output',
         'started_at',
         'finished_at',
+        'payload',
+        'sender',
+        'receiver'
     ];
 
     /** @var array<string, int> */
     protected $attributes = [
         'attempts' => 0,
         'output' => '[]',
+        'payload' => '[]',
     ];
 
     protected function casts(): array
@@ -65,6 +77,7 @@ class TrackedJob extends Model implements TrackableJobContract
             'attempts' => 'integer',
             'output' => 'array',
             'status' => TrackedJobStatus::class,
+            'payload' => 'array',
         ];
     }
 
@@ -100,12 +113,13 @@ class TrackedJob extends Model implements TrackableJobContract
     }
 
     /** Mark the job as started. */
-    public function markAsStarted(): bool
+    public function markAsStarted($payload): bool
     {
         return $this->update([
             'status' => TrackedJobStatus::Started->value,
             'attempts' => 1,
             'started_at' => now(),
+            'payload' => $payload,
         ]);
     }
 
@@ -117,8 +131,16 @@ class TrackedJob extends Model implements TrackableJobContract
         ]);
     }
 
-    public function markAsRetrying(int $attempts): bool
+    public function markAsRetrying(int $attempts,$is_end): bool
     {
+        if($is_end){
+            //create trackable job attempt
+            TrackedJobAttempt::create([
+                'tracked_job_id' => $this->id,
+                'status' => TrackedJobStatus::Retrying->value,
+            ]);
+        }
+
         return $this->update([
             'status' => TrackedJobStatus::Retrying->value,
             'attempts' => $attempts,
@@ -130,6 +152,14 @@ class TrackedJob extends Model implements TrackableJobContract
         if ($message) {
             $this->setOutput($message);
         }
+
+        //create trackable job attempt
+        TrackedJobAttempt::create([
+            'trackable_job_id' => $this->id,
+            'status' => TrackedJobStatus::Finished->value,
+            'output' => $this->output,
+            'finished_at' => now(),
+        ]);
 
         return $this->update([
             'status' => TrackedJobStatus::Finished->value,
@@ -143,6 +173,14 @@ class TrackedJob extends Model implements TrackableJobContract
         if ($exception) {
             $this->setOutput($exception);
         }
+
+        //create trackable job attempt
+        TrackedJobAttempt::create([
+            'tracked_job_id' => $this->id,
+            'status' => TrackedJobStatus::Failed->value,
+            'output' => $this->output,
+            'finished_at' => now(),
+        ]);
 
         return $this->update([
             'status' => TrackedJobStatus::Failed->value,
