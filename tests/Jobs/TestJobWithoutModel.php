@@ -23,4 +23,14 @@ class TestJobWithoutModel extends TrackableJob implements ShouldQueue
 
         return 'This is a test job without models.';
     }
+
+    public function sender(): ?string
+    {
+        return 'TestSender-TestJobWithoutModel';
+    }
+
+    public function getQueue(): ?string
+    {
+        return 'TestReceiver-TestJobWithoutModel';
+    }
 }

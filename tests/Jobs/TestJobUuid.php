@@ -33,4 +33,14 @@ class TestJobUuid extends TrackableJob implements ShouldQueue
     {
         return 'uuid';
     }
+
+    public function sender(): ?string
+    {
+        return 'TestSender-TestJobUuid';
+    }
+
+    public function getQueue(): ?string
+    {
+        return 'TestReceiver-TestJobUuid';
+    }
 }
