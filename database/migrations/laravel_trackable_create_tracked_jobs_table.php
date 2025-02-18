@@ -25,17 +25,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create($this->table_name, function (Blueprint $table) {
-            $this->usingUuid
-                ? $table->uuid()->primary()
-                : $table->id();
+            $table->id();
             $table->string('trackable_id')->index()->nullable();
             $table->string('trackable_type')->index()->nullable();
             $table->string('sender');
             $table->string('receiver');
             $table->string('name');
             $table->string('status')->nullable();
-            $table->string('job_id')->nullable()->after('name');
-            $table->integer('attempts')->default(1)->after('status');
+            $table->string('job_id')->nullable();
+            $table->integer('attempts')->default(1);
             $table->json('output')->nullable();
             $table->json('payload')->nullable();
             $table->timestamp('started_at')->nullable();
